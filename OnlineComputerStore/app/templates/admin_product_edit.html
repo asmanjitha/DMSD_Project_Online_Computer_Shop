@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Product</title></head>
+<body>
+    {% include 'navbar_admin.html' %}
+<h2>Edit Product</h2>
+<form method="POST">
+    Name: <input type="text" name="name" value="{{ product.name }}" required><br>
+    Description: <textarea name="description">{{ product.description }}</textarea><br>
+    Recommended Price: <input type="number" step="0.01" name="recommended_price" value="{{ product.recommended_price }}" required><br>
+    Quantity in Stock: <input type="number" name="quantity_in_stock" value="{{ product.quantity_in_stock }}" required><br>
+    Product Type ID: <input type="number" name="type_id" value="{{ product.type_id }}" required><br>
+    <input type="submit" value="Update Product">
+</form>
+</body>
+</html>

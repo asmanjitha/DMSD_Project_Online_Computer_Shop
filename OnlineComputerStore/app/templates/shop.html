@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Shop</title></head>
+<body>
+
+{% include 'navbar_user.html' %}
+
+<h2>Products</h2>
+<ul>
+    {% for product in products %}
+        <li>
+            {{ product.name }} - ${{ product.recommended_price }}
+            <a href="{{ url_for('cart_add', product_id=product.product_id) }}">Add to Cart</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('cart') }}">View Cart</a>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Manage Promotions</title></head>
+<body>
+    {% include 'navbar_admin.html' %}
+<h2>Promotions</h2>
+<a href="{{ url_for('admin_promotion_add') }}">Add New Promotion</a>
+<ul>
+    {% for promo in promotions %}
+        <li>{{ promo.product_name }} - ${{ promo.offer_price }}
+            <a href="{{ url_for('admin_promotion_edit', offer_id=promo.offer_id) }}">Edit</a> |
+            <a href="{{ url_for('admin_promotion_delete', offer_id=promo.offer_id) }}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

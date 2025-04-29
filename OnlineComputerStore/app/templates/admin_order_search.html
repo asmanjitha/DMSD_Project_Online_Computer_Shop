@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><title>Search Orders</title></head>
+<body>
+
+{% include 'navbar_admin.html' %}
+
+<h2>Search Customer Orders</h2>
+
+<form method="POST">
+    Search By:
+    <select name="search_type">
+        <option value="email">Email</option>
+        <option value="customer_id">Customer ID</option>
+    </select>
+    <input type="text" name="search_value" required>
+    <input type="submit" value="Search">
+</form>
+
+{% if orders %}
+<h3>Search Results:</h3>
+<ul>
+    {% for order in orders %}
+    <li>
+        Transaction ID: {{ order.transaction_id }} - Total: ${{ order.total_amount }}
+        - Status: {{ order.status }} - Date: {{ order.transaction_date }}
+        <a href="{{ url_for('admin_order_detail', transaction_id=order.transaction_id) }}">View Details</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+</body>
+</html>

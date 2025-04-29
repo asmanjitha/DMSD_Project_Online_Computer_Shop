@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>Checkout</title></head>
+<body>
+
+{% include 'navbar_user.html' %}
+
+<h2>Checkout</h2>
+
+{% if cards and addresses %}
+<form method="POST">
+
+    Select Shipping Address:<br>
+    <select name="address_name" required>
+        {% for addr in addresses %}
+            <option value="{{ addr.address_name }}">{{ addr.address_name }} ({{ addr.street_name }} {{ addr.street_number }}, {{ addr.city }})</option>
+        {% endfor %}
+    </select><br><br>
+
+    Select Credit Card:<br>
+    <select name="card_number" required>
+        {% for card in cards %}
+            <option value="{{ card.card_number }}">{{ card.card_number }} ({{ card.card_type }})</option>
+        {% endfor %}
+    </select><br><br>
+
+    <input type="submit" value="Place Order">
+</form>
+
+{% else %}
+<p>You must add a shipping address and a credit card first.</p>
+<a href="{{ url_for('shippingaddress_add') }}">Add Shipping Address</a> |
+<a href="{{ url_for('creditcard_add') }}">Add Credit Card</a>
+{% endif %}
+
+<a href="{{ url_for('cart') }}">Back to Cart</a>
+
+</body>
+</html>

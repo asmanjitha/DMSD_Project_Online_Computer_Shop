@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Add Credit Card</title></head>
+<body>
+    {% include 'navbar_user.html' %}
+<h2>Add Credit Card</h2>
+<form method="POST">
+    Card Number: <input type="text" name="card_number" required><br>
+    Security Code: <input type="text" name="security_code" required><br>
+    Owner Name: <input type="text" name="owner_name" required><br>
+    Billing Address: <textarea name="billing_address" required></textarea><br>
+    Card Type: <input type="text" name="card_type" required><br>
+    Expiry Date: <input type="date" name="expiry_date" required><br>
+    <input type="submit" value="Add Card">
+</form>
+<a href="{{ url_for('profile') }}">Back to Profile</a>
+</body>
+</html>

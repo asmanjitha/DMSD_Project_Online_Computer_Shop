@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Add Shipping Address</title></head>
+<body>
+
+{% include 'navbar_user.html' %}
+
+<h2>Add Shipping Address</h2>
+
+<form method="POST">
+    Address Nickname: <input type="text" name="address_name" required><br>
+    Zip Code: <input type="text" name="zip_code" required><br>
+    Street Name: <input type="text" name="street_name" required><br>
+    Street Number: <input type="text" name="street_number" required><br>
+    City: <input type="text" name="city" required><br>
+    State: <input type="text" name="state" required><br>
+    Country: <input type="text" name="country" required><br>
+    <input type="submit" value="Add Address">
+</form>
+
+<a href="{{ url_for('shippingaddress_list') }}">Back to My Addresses</a>
+
+</body>
+</html>

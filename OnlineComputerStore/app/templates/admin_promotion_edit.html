@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Promotion</title></head>
+<body>
+    {% include 'navbar_admin.html' %}
+<h2>Edit Promotion for {{ promotion.product_name }}</h2>
+<form method="POST">
+    Offer Price: <input type="number" step="0.01" name="offer_price" value="{{ promotion.offer_price }}" required><br>
+    <input type="submit" value="Update Promotion">
+</form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><title>Order Detail (Admin)</title></head>
+<body>
+
+{% include 'navbar_admin.html' %}
+
+<h2>Transaction Details - ID: {{ transaction.transaction_id }}</h2>
+<p>Status: {{ transaction.status }}</p>
+<p>Total Amount: ${{ transaction.total_amount }}</p>
+<p>Order Date: {{ transaction.transaction_date }}</p>
+
+<h3>Items:</h3>
+<ul>
+    {% for item in items %}
+    <li>{{ item.name }} - Quantity: {{ item.quantity }} - Unit Price: ${{ item.final_price }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('admin_order_search') }}">Back to Search</a>
+
+</body>
+</html>

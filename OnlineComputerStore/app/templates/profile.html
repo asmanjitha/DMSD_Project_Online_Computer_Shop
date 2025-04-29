@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Profile</title></head>
+<body>
+
+    {% include 'navbar_user.html' %}
+
+    <h2>Profile</h2>
+    
+    <form method="POST">
+        Phone: <input type="text" name="phone" value="{{ customer.phone }}"><br>
+        Home Address: <textarea name="home_address">{{ customer.home_address }}</textarea><br>
+        <input type="submit" value="Update Profile">
+    </form>
+    
+    <br>
+    <a href="{{ url_for('creditcard_add') }}">Add Credit Card</a> |
+    <a href="{{ url_for('shippingaddress_list') }}">Manage Shipping Addresses</a> |
+    <a href="{{ url_for('order_list') }}">View My Orders</a>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Orders</title></head>
+<body>
+
+{% include 'navbar_user.html' %}
+
+<h2>My Orders</h2>
+
+{% if orders %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>Order ID</th>
+        <th>Total Amount</th>
+        <th>Status</th>
+        <th>Order Date</th>
+    </tr>
+    {% for order in orders %}
+    <tr>
+        <td>{{ order.transaction_id }}</td>
+        <td>${{ order.total_amount }}</td>
+        <td>{{ order.status }}</td>
+        <td>{{ order.transaction_date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>You have not placed any orders yet.</p>
+<a href="{{ url_for('shop') }}">Start Shopping</a>
+{% endif %}
+
+</body>
+</html>

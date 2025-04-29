@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>My Shipping Addresses</title></head>
+<body>
+
+{% include 'navbar_user.html' %}
+
+<h2>My Shipping Addresses</h2>
+
+<a href="{{ url_for('shippingaddress_add') }}">Add New Address</a>
+<ul>
+    {% for addr in addresses %}
+        <li>
+            {{ addr.address_name }}: {{ addr.street_name }} {{ addr.street_number }}, {{ addr.city }}, {{ addr.state }}, {{ addr.country }}
+            <a href="{{ url_for('shippingaddress_delete', address_name=addr.address_name) }}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

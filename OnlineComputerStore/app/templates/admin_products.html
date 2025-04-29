@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Manage Products</title></head>
+<body>
+    {% include 'navbar_admin.html' %}
+<h2>Products</h2>
+<a href="{{ url_for('admin_product_add') }}">Add New Product</a>
+<a href="{{ url_for('admin_producttype_add') }}">Add New Product Type</a>
+
+<ul>
+    {% for product in products %}
+        <li>{{ product.name }} - ${{ product.recommended_price }}
+            <a href="{{ url_for('admin_product_edit', product_id=product.product_id) }}">Edit</a> |
+            <a href="{{ url_for('admin_product_delete', product_id=product.product_id) }}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
