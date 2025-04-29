@@ -1,24 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head><title>Add Shipping Address</title></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Add Shipping Address{% endblock %}
+
+{% block content %}
 {% include 'navbar_user.html' %}
 
-<h2>Add Shipping Address</h2>
+<h2 class="mb-4">Add New Shipping Address</h2>
 
-<form method="POST">
-    Address Nickname: <input type="text" name="address_name" required><br>
-    Zip Code: <input type="text" name="zip_code" required><br>
-    Street Name: <input type="text" name="street_name" required><br>
-    Street Number: <input type="text" name="street_number" required><br>
-    City: <input type="text" name="city" required><br>
-    State: <input type="text" name="state" required><br>
-    Country: <input type="text" name="country" required><br>
-    <input type="submit" value="Add Address">
+<form method="POST" class="row g-3">
+
+    <div class="col-md-6">
+        <label for="address_name" class="form-label">Address Nickname</label>
+        <input type="text" class="form-control" name="address_name" id="address_name" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="zip_code" class="form-label">Zip Code</label>
+        <input type="text" class="form-control" name="zip_code" id="zip_code" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="street_name" class="form-label">Street Name</label>
+        <input type="text" class="form-control" name="street_name" id="street_name" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="street_number" class="form-label">Street Number</label>
+        <input type="text" class="form-control" name="street_number" id="street_number" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" name="city" id="city" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" name="state" id="state" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="country" class="form-label">Country</label>
+        <input type="text" class="form-control" name="country" id="country" required>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Add Address</button>
+        <a href="{{ url_for('shippingaddress_list') }}" class="btn btn-secondary">Back to Addresses</a>
+    </div>
+
 </form>
 
-<a href="{{ url_for('shippingaddress_list') }}">Back to My Addresses</a>
-
-</body>
-</html>
+{% endblock %}

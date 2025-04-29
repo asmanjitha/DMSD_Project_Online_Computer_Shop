@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Statistics Dashboard{% endblock %}
+
+{% block content %}
+{% include 'navbar_admin.html' %}
+
+<h2 class="mb-4">Sales Statistics Dashboard</h2>
+
+<div class="list-group">
+    <a href="{{ url_for('admin_total_by_card') }}" class="list-group-item list-group-item-action">Total Amount Charged per Credit Card</a>
+    <a href="{{ url_for('admin_top_customers') }}" class="list-group-item list-group-item-action">Top 10 Best Customers</a>
+    <a href="{{ url_for('admin_most_sold_products') }}" class="list-group-item list-group-item-action">Most Frequently Sold Products</a>
+    <a href="{{ url_for('admin_products_by_customers') }}" class="list-group-item list-group-item-action">Products Sold to Most Distinct Customers</a>
+    <a href="{{ url_for('admin_max_basket_per_card') }}" class="list-group-item list-group-item-action">Maximum Basket Total per Credit Card</a>
+    <a href="{{ url_for('admin_avg_price_per_type') }}" class="list-group-item list-group-item-action">Average Selling Price per Product Type</a>
+</div>
+
+{% endblock %}

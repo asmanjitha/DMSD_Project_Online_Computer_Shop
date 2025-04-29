@@ -2,7 +2,8 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from app import app
 from app.db import get_db_connection
-
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 @app.route('/user/register', methods=['GET', 'POST'])
 def user_register():
@@ -10,15 +11,19 @@ def user_register():
         fname = request.form['first_name']
         lname = request.form['last_name']
         email = request.form['email']
+        password = request.form['password']
+
+        hashed_password = generate_password_hash(password)
+
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
             cursor.execute("""
-                INSERT INTO Customer (first_name, last_name, email)
-                VALUES (%s, %s, %s)
-            """, (fname, lname, email))
+                INSERT INTO Customer (first_name, last_name, email, password)
+                VALUES (%s, %s, %s, %s)
+            """, (fname, lname, email, hashed_password))
             conn.commit()
-            flash('User registration successful!', 'success')
+            flash('User registration successful! Please login.', 'success')
             return redirect(url_for('user_login'))
         except Exception as e:
             conn.rollback()
@@ -26,25 +31,33 @@ def user_register():
         finally:
             cursor.close()
             conn.close()
+
     return render_template('user_register.html')
+
+
 
 @app.route('/user/login', methods=['GET', 'POST'])
 def user_login():
     if request.method == 'POST':
         email = request.form['email']
+        password = request.form['password']
+
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM Customer WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-        if user:
+
+        if user and check_password_hash(user['password'], password):
             session['user_email'] = email
             flash('Login successful!', 'success')
             return redirect(url_for('shop'))
         else:
-            flash('Invalid email.', 'danger')
+            flash('Invalid email or password.', 'danger')
+
     return render_template('user_login.html')
+
 
 @app.route('/user/logout')
 def user_logout():

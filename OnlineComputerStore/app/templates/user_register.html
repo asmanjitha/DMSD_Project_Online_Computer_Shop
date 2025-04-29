@@ -1,13 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head><title>User Registration</title></head>
-<body>
-<h2>User Registration</h2>
-<form method="POST">
-    First Name: <input type="text" name="first_name" required><br>
-    Last Name: <input type="text" name="last_name" required><br>
-    Email: <input type="email" name="email" required><br>
-    <input type="submit" value="Register">
+{% extends "base.html" %}
+
+{% block title %}User Registration{% endblock %}
+
+{% block content %}
+{% include 'navbar_user.html' %}
+
+<h2 class="mb-4">User Registration</h2>
+
+<form method="POST" class="row g-3">
+
+    <div class="col-md-6">
+        <label for="first_name" class="form-label">First Name</label>
+        <input type="text" class="form-control" name="first_name" id="first_name" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" name="last_name" id="last_name" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" class="form-control" name="email" id="email" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" name="password" id="password" required>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Register</button>
+    </div>
+
 </form>
-</body>
-</html>
+
+{% endblock %}

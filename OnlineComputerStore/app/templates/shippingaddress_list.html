@@ -1,21 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head><title>My Shipping Addresses</title></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}My Shipping Addresses{% endblock %}
+
+{% block content %}
 {% include 'navbar_user.html' %}
 
-<h2>My Shipping Addresses</h2>
+<h2 class="mb-4">My Shipping Addresses</h2>
 
-<a href="{{ url_for('shippingaddress_add') }}">Add New Address</a>
-<ul>
+<a href="{{ url_for('shippingaddress_add') }}" class="btn btn-success mb-4">Add New Address</a>
+
+{% if addresses %}
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Address Nickname</th>
+            <th>Address Details</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for addr in addresses %}
-        <li>
-            {{ addr.address_name }}: {{ addr.street_name }} {{ addr.street_number }}, {{ addr.city }}, {{ addr.state }}, {{ addr.country }}
-            <a href="{{ url_for('shippingaddress_delete', address_name=addr.address_name) }}">Delete</a>
-        </li>
+    <tr>
+        <td>{{ addr.address_name }}</td>
+        <td>{{ addr.street_name }} {{ addr.street_number }}, {{ addr.city }}, {{ addr.state }}, {{ addr.country }}</td>
+        <td>
+            <a href="{{ url_for('shippingaddress_delete', address_name=addr.address_name) }}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-warning">
+    You have not added any shipping addresses yet.
+</div>
+{% endif %}
 
-</body>
-</html>
+{% endblock %}

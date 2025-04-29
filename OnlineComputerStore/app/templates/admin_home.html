@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    {% include 'navbar_admin.html' %}
-    <h2>Welcome Admin {{ session['admin_user'] }}</h2>
+{% extends "base.html" %}
 
-    <ul>
-        <li><a href="{{ url_for('admin_products') }}">Manage Products</a></li>
-        <li><a href="{{ url_for('admin_promotions') }}">Manage Promotions</a></li>
-        <li><a href="{{ url_for('admin_order_search') }}">Manage Orders</a></li>
-        <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
-    </ul>
-</body>
-</html>
+{% block title %}Admin Home{% endblock %}
+
+{% block content %}
+{% include 'navbar_admin.html' %}
+
+<h2>Welcome Admin {{ session['admin_user'] }}</h2>
+
+<ul>
+    <li><a href="{{ url_for('admin_products') }}">Manage Products</a></li>
+    <li><a href="{{ url_for('admin_promotions') }}">Manage Promotions</a></li>
+    <li><a href="{{ url_for('admin_order_search') }}">Manage Orders</a></li>
+    <li><a href="{{ url_for('admin_statistics_dashboard') }}">Sales Statistics Dashboard</a></li>
+    <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+</ul>
+
+{% endblock %}
+

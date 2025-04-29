@@ -1,39 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head><title>Checkout</title></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
 {% include 'navbar_user.html' %}
 
-<h2>Checkout</h2>
+<h2 class="mb-4">Checkout</h2>
 
 {% if cards and addresses %}
-<form method="POST">
+<form method="POST" class="row g-3">
 
-    Select Shipping Address:<br>
-    <select name="address_name" required>
-        {% for addr in addresses %}
+    <div class="col-md-6">
+        <label for="address_name" class="form-label">Select Shipping Address</label>
+        <select name="address_name" id="address_name" class="form-select" required>
+            {% for addr in addresses %}
             <option value="{{ addr.address_name }}">{{ addr.address_name }} ({{ addr.street_name }} {{ addr.street_number }}, {{ addr.city }})</option>
-        {% endfor %}
-    </select><br><br>
+            {% endfor %}
+        </select>
+    </div>
 
-    Select Credit Card:<br>
-    <select name="card_number" required>
-        {% for card in cards %}
+    <div class="col-md-6">
+        <label for="card_number" class="form-label">Select Credit Card</label>
+        <select name="card_number" id="card_number" class="form-select" required>
+            {% for card in cards %}
             <option value="{{ card.card_number }}">{{ card.card_number }} ({{ card.card_type }})</option>
-        {% endfor %}
-    </select><br><br>
+            {% endfor %}
+        </select>
+    </div>
 
-    <input type="submit" value="Place Order">
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Place Order</button>
+        <a href="{{ url_for('cart') }}" class="btn btn-secondary">Back to Cart</a>
+    </div>
+
 </form>
 
 {% else %}
-<p>You must add a shipping address and a credit card first.</p>
-<a href="{{ url_for('shippingaddress_add') }}">Add Shipping Address</a> |
-<a href="{{ url_for('creditcard_add') }}">Add Credit Card</a>
+<div class="alert alert-warning mt-3">
+    <p>You must add a shipping address and a credit card first.</p>
+    <a href="{{ url_for('shippingaddress_add') }}" class="btn btn-primary btn-sm">Add Shipping Address</a>
+    <a href="{{ url_for('creditcard_add') }}" class="btn btn-primary btn-sm">Add Credit Card</a>
+</div>
 {% endif %}
 
-<a href="{{ url_for('cart') }}">Back to Cart</a>
-
-</body>
-</html>
+{% endblock %}

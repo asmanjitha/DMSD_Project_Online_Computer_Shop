@@ -1,23 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head><title>Order Detail (Admin)</title></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Transaction Detail{% endblock %}
+
+{% block content %}
 {% include 'navbar_admin.html' %}
 
-<h2>Transaction Details - ID: {{ transaction.transaction_id }}</h2>
-<p>Status: {{ transaction.status }}</p>
-<p>Total Amount: ${{ transaction.total_amount }}</p>
-<p>Order Date: {{ transaction.transaction_date }}</p>
+<h2 class="mb-4">Transaction Details - ID: {{ transaction.transaction_id }}</h2>
 
-<h3>Items:</h3>
-<ul>
+<div class="mb-3">
+    <p><strong>Status:</strong> {{ transaction.status }}</p>
+    <p><strong>Total Amount:</strong> ${{ transaction.total_amount }}</p>
+    <p><strong>Order Date:</strong> {{ transaction.transaction_date }}</p>
+</div>
+
+<h3>Items Purchased:</h3>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price Per Unit ($)</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for item in items %}
-    <li>{{ item.name }} - Quantity: {{ item.quantity }} - Unit Price: ${{ item.final_price }}</li>
+    <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.final_price }}</td>
+    </tr>
     {% endfor %}
-</ul>
+    </tbody>
+</table>
 
-<a href="{{ url_for('admin_order_search') }}">Back to Search</a>
+<hr class="my-4">
 
-</body>
-</html>
+<h3>Change Order Status</h3>
+
+<form method="POST" action="{{ url_for('admin_update_order_status', transaction_id=transaction.transaction_id) }}" class="row g-3">
+
+    <div class="col-md-6">
+        <label for="new_status" class="form-label">New Status</label>
+        <select name="new_status" id="new_status" class="form-select" required>
+            <option value="confirmed" {% if transaction.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+            <option value="not-delivered" {% if transaction.status == 'not-delivered' %}selected{% endif %}>Not Delivered</option>
+        </select>
+    </div>
+
+    <div class="col-md-6 align-self-end">
+        <button type="submit" class="btn btn-primary">Update Status</button>
+    </div>
+
+</form>
+
+<div class="mt-4">
+    <a href="{{ url_for('admin_order_search') }}" class="btn btn-secondary">Back to Search</a>
+</div>
+
+{% endblock %}

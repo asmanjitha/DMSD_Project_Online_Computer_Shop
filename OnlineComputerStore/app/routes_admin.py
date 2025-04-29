@@ -310,3 +310,181 @@ def admin_order_detail(transaction_id):
     conn.close()
 
     return render_template('admin_order_detail.html', transaction=transaction, items=items)
+
+
+@app.route('/admin/orders/<int:transaction_id>/update_status', methods=['POST'])
+def admin_update_order_status(transaction_id):
+    new_status = request.form['new_status']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE SalesTransaction
+        SET status = %s
+        WHERE transaction_id = %s
+    """, (new_status, transaction_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash('Order status updated successfully.', 'success')
+    return redirect(url_for('admin_order_detail', transaction_id=transaction_id))
+
+
+# ====================== STATISTICS ====================================
+
+@app.route('/admin/statistics')
+def admin_statistics_dashboard():
+    return render_template('admin_statistics.html')
+
+
+
+@app.route('/admin/statistics/total_by_card')
+def admin_total_by_card():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT card_number, SUM(total_amount) as total_charged
+        FROM SalesTransaction
+        GROUP BY card_number
+        ORDER BY total_charged DESC
+    """)
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('admin_total_by_card.html', results=results)
+
+
+@app.route('/admin/statistics/top_customers')
+def admin_top_customers():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT c.customer_id, c.first_name, c.last_name, SUM(st.total_amount) AS total_spent
+        FROM SalesTransaction st
+        JOIN Customer c ON st.shipping_customer_id = c.customer_id
+        GROUP BY c.customer_id
+        ORDER BY total_spent DESC
+        LIMIT 10
+    """)
+    customers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('admin_top_customers.html', customers=customers)
+
+
+@app.route('/admin/statistics/most_sold_products', methods=['GET', 'POST'])
+def admin_most_sold_products():
+    products = []
+
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT p.name, SUM(td.quantity) AS total_sold
+            FROM TransactionDetails td
+            JOIN Product p ON td.product_id = p.product_id
+            JOIN SalesTransaction st ON td.transaction_id = st.transaction_id
+            WHERE st.transaction_date BETWEEN %s AND %s
+            GROUP BY p.product_id
+            ORDER BY total_sold DESC
+        """, (start_date, end_date))
+        products = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    return render_template('admin_most_sold_products.html', products=products)
+
+
+@app.route('/admin/statistics/products_by_customers', methods=['GET', 'POST'])
+def admin_products_by_customers():
+    products = []
+
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT p.name, COUNT(DISTINCT st.shipping_customer_id) AS distinct_customers
+            FROM TransactionDetails td
+            JOIN Product p ON td.product_id = p.product_id
+            JOIN SalesTransaction st ON td.transaction_id = st.transaction_id
+            WHERE st.transaction_date BETWEEN %s AND %s
+            GROUP BY p.product_id
+            ORDER BY distinct_customers DESC
+        """, (start_date, end_date))
+        products = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    return render_template('admin_products_by_customers.html', products=products)
+
+
+@app.route('/admin/statistics/max_basket_per_card', methods=['GET', 'POST'])
+def admin_max_basket_per_card():
+    cards = []
+
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT card_number, MAX(total_amount) AS max_basket
+            FROM SalesTransaction
+            WHERE transaction_date BETWEEN %s AND %s
+            GROUP BY card_number
+            ORDER BY max_basket DESC
+        """, (start_date, end_date))
+        cards = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    return render_template('admin_max_basket_per_card.html', cards=cards)
+
+
+@app.route('/admin/statistics/avg_price_per_type', methods=['GET', 'POST'])
+def admin_avg_price_per_type():
+    averages = []
+
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT pt.category, AVG(td.final_price) AS avg_price
+            FROM TransactionDetails td
+            JOIN Product p ON td.product_id = p.product_id
+            JOIN ProductType pt ON p.type_id = pt.type_id
+            JOIN SalesTransaction st ON td.transaction_id = st.transaction_id
+            WHERE st.transaction_date BETWEEN %s AND %s
+            GROUP BY pt.category
+        """, (start_date, end_date))
+        averages = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    return render_template('admin_avg_price_per_type.html', averages=averages)
+

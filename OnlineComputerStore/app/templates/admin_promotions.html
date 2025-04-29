@@ -1,17 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head><title>Manage Promotions</title></head>
-<body>
-    {% include 'navbar_admin.html' %}
-<h2>Promotions</h2>
-<a href="{{ url_for('admin_promotion_add') }}">Add New Promotion</a>
-<ul>
+{% extends "base.html" %}
+
+{% block title %}Manage Promotions{% endblock %}
+
+{% block content %}
+{% include 'navbar_admin.html' %}
+
+<h2 class="mb-4">Manage Promotions</h2>
+
+<div class="d-flex mb-3">
+    <a href="{{ url_for('admin_promotion_add') }}" class="btn btn-success">Add New Promotion</a>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Offer Price ($)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for promo in promotions %}
-        <li>{{ promo.product_name }} - ${{ promo.offer_price }}
-            <a href="{{ url_for('admin_promotion_edit', offer_id=promo.offer_id) }}">Edit</a> |
-            <a href="{{ url_for('admin_promotion_delete', offer_id=promo.offer_id) }}">Delete</a>
-        </li>
+    <tr>
+        <td>{{ promo.product_name }}</td>
+        <td>{{ promo.offer_price }}</td>
+        <td>
+            <a href="{{ url_for('admin_promotion_edit', offer_id=promo.offer_id) }}" class="btn btn-primary btn-sm">Edit</a>
+            <a href="{{ url_for('admin_promotion_delete', offer_id=promo.offer_id) }}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
-</body>
-</html>
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,8 +1,26 @@
-<!-- app/templates/navbar_user.html -->
-<div style="background-color: lightgrey; padding: 10px;">
-    <a href="{{ url_for('shop') }}">Home</a> |
-    <a href="{{ url_for('cart') }}">Cart</a> |
-    <a href="{{ url_for('profile') }}">Profile</a> |
-    <a href="{{ url_for('user_logout') }}">Logout</a>
-</div>
-<hr>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('shop') }}">Online Computer Store</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar" aria-controls="userNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="collapse navbar-collapse" id="userNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('shop') }}">Shop</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('cart') }}">Cart</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('user_logout') }}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  

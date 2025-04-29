@@ -1,23 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head><title>Order Detail</title></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Order Detail{% endblock %}
+
+{% block content %}
 {% include 'navbar_user.html' %}
 
-<h2>Order Details - ID: {{ transaction.transaction_id }}</h2>
-<p>Status: {{ transaction.status }}</p>
-<p>Total Amount: ${{ transaction.total_amount }}</p>
-<p>Order Date: {{ transaction.transaction_date }}</p>
+<h2 class="mb-4">Order Details - ID: {{ transaction.transaction_id }}</h2>
 
-<h3>Items:</h3>
-<ul>
+<div class="mb-3">
+    <p><strong>Status:</strong> {{ transaction.status }}</p>
+    <p><strong>Total Amount:</strong> ${{ transaction.total_amount }}</p>
+    <p><strong>Order Date:</strong> {{ transaction.transaction_date }}</p>
+</div>
+
+<h3>Items Purchased:</h3>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price Per Unit ($)</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for item in items %}
-    <li>{{ item.name }} - Quantity: {{ item.quantity }} - Unit Price: ${{ item.final_price }}</li>
+    <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.final_price }}</td>
+    </tr>
     {% endfor %}
-</ul>
+    </tbody>
+</table>
 
-<a href="{{ url_for('order_list') }}">Back to Orders</a>
+<div class="mt-4">
+    <a href="{{ url_for('order_list') }}" class="btn btn-secondary">Back to Orders</a>
+</div>
 
-</body>
-</html>
+{% endblock %}

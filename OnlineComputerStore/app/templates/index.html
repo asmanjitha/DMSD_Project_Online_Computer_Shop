@@ -1,15 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Online Computer Store</title>
-</head>
-<body>
-    <h1>Welcome to Online Computer Store</h1>
-    <ul>
-        <li><a href="{{ url_for('user_login') }}">User Login</a></li>
-        <li><a href="{{ url_for('user_register') }}">User Registration</a></li>
-        <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
-        <li><a href="{{ url_for('admin_register') }}">Admin Registration</a></li>
-    </ul>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Welcome | Online Computer Store{% endblock %}
+
+{% block content %}
+{% include 'navbar_user.html' %}
+
+<div class="text-center mt-5">
+    <h1 class="mb-4">Welcome to Online Computer Store</h1>
+
+    <div class="d-grid gap-3 col-6 mx-auto">
+        <a href="{{ url_for('user_login') }}" class="btn btn-primary btn-lg">User Login</a>
+        <a href="{{ url_for('user_register') }}" class="btn btn-success btn-lg">User Register</a>
+        <a href="{{ url_for('admin_login') }}" class="btn btn-dark btn-lg">Admin Login</a>
+        <a href="{{ url_for('admin_register') }}" class="btn btn-secondary btn-lg">Admin Register</a>
+    </div>
+</div>
+
+{% endblock %}

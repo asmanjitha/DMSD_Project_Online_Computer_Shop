@@ -1,18 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head><title>Add Promotion</title></head>
-<body>
-    {% include 'navbar_admin.html' %}
-<h2>Add New Promotion</h2>
-<form method="POST">
-    Product:
-    <select name="product_id" required>
-        {% for product in products %}
-            <option value="{{ product.product_id }}">{{ product.name }}</option>
-        {% endfor %}
-    </select><br>
-    Offer Price: <input type="number" step="0.01" name="offer_price" required><br>
-    <input type="submit" value="Add Promotion">
+{% extends "base.html" %}
+
+{% block title %}Add New Promotion{% endblock %}
+
+{% block content %}
+{% include 'navbar_admin.html' %}
+
+<h2 class="mb-4">Add New Promotion</h2>
+
+<form method="POST" class="row g-3">
+
+    <div class="col-md-6">
+        <label for="product_id" class="form-label">Product</label>
+        <select name="product_id" id="product_id" class="form-select" required>
+            {% for product in products %}
+                <option value="{{ product.product_id }}">{{ product.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label for="offer_price" class="form-label">Offer Price ($)</label>
+        <input type="number" step="0.01" class="form-control" name="offer_price" id="offer_price" required>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Add Promotion</button>
+    </div>
+
 </form>
-</body>
-</html>
+
+{% endblock %}

@@ -1,18 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head><title>Add Credit Card</title></head>
-<body>
-    {% include 'navbar_user.html' %}
-<h2>Add Credit Card</h2>
-<form method="POST">
-    Card Number: <input type="text" name="card_number" required><br>
-    Security Code: <input type="text" name="security_code" required><br>
-    Owner Name: <input type="text" name="owner_name" required><br>
-    Billing Address: <textarea name="billing_address" required></textarea><br>
-    Card Type: <input type="text" name="card_type" required><br>
-    Expiry Date: <input type="date" name="expiry_date" required><br>
-    <input type="submit" value="Add Card">
+{% extends "base.html" %}
+
+{% block title %}Add Credit Card{% endblock %}
+
+{% block content %}
+{% include 'navbar_user.html' %}
+
+<h2 class="mb-4">Add New Credit Card</h2>
+
+<form method="POST" class="row g-3">
+
+    <div class="col-md-6">
+        <label for="card_number" class="form-label">Card Number</label>
+        <input type="text" class="form-control" name="card_number" id="card_number" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="security_code" class="form-label">Security Code</label>
+        <input type="text" class="form-control" name="security_code" id="security_code" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="owner_name" class="form-label">Owner Name</label>
+        <input type="text" class="form-control" name="owner_name" id="owner_name" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="billing_address" class="form-label">Billing Address</label>
+        <textarea class="form-control" name="billing_address" id="billing_address" required></textarea>
+    </div>
+
+    <div class="col-md-6">
+        <label for="card_type" class="form-label">Card Type</label>
+        <input type="text" class="form-control" name="card_type" id="card_type" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="expiry_date" class="form-label">Expiry Date</label>
+        <input type="date" class="form-control" name="expiry_date" id="expiry_date" required>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Add Card</button>
+        <a href="{{ url_for('profile') }}" class="btn btn-secondary">Back to Profile</a>
+    </div>
+
 </form>
-<a href="{{ url_for('profile') }}">Back to Profile</a>
-</body>
-</html>
+
+{% endblock %}

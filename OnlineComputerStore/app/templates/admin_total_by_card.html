@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Total Amount by Credit Card{% endblock %}
+
+{% block content %}
+{% include 'navbar_admin.html' %}
+
+<h2 class="mb-4">Total Amount Charged Per Credit Card</h2>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Credit Card Number</th>
+            <th>Total Amount Charged ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in results %}
+    <tr>
+        <td>{{ row.card_number }}</td>
+        <td>${{ row.total_charged }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('admin_statistics_dashboard') }}" class="btn btn-secondary mt-4">Back to Dashboard</a>
+
+{% endblock %}
