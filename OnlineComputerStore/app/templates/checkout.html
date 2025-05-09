@@ -37,9 +37,14 @@
 
 {% else %}
 <div class="alert alert-warning mt-3">
-    <p>You must add a shipping address and a credit card first.</p>
-    <a href="{{ url_for('shippingaddress_add') }}" class="btn btn-primary btn-sm">Add Shipping Address</a>
-    <a href="{{ url_for('creditcard_add') }}" class="btn btn-primary btn-sm">Add Credit Card</a>
+    {% if not addresses %}
+        <p>You must add a shipping address before placing an order.</p>
+        <a href="{{ url_for('shippingaddress_add') }}" class="btn btn-primary btn-sm">Add Shipping Address</a>
+    {% endif %}
+    {% if not cards %}
+        <p>You must add a credit card before placing an order.</p>
+        <a href="{{ url_for('creditcard_add') }}" class="btn btn-primary btn-sm">Add Credit Card</a>
+    {% endif %}
 </div>
 {% endif %}
 

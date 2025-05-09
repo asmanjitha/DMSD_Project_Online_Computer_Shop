@@ -1,5 +1,4 @@
 
--- Drop tables if they exist (for reset purposes)
 DROP TABLE IF EXISTS TransactionDetails, SalesTransaction, ShoppingBasket, SpecialOffer, ShippingAddress, CreditCard, Customer, Product, ProductType;
 
 -- Customers
@@ -123,4 +122,10 @@ CREATE TABLE TransactionDetails (
     PRIMARY KEY (transaction_id, product_id),
     FOREIGN KEY (transaction_id) REFERENCES SalesTransaction(transaction_id),
     FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+-- Customer Tiers
+CREATE TABLE Tier (
+    tier_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
 );

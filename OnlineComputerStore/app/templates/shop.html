@@ -7,14 +7,26 @@
 
 <h2 class="mb-4">Products</h2>
 
+{% if customer_status %}
+    <p class="text-muted">You're logged in as a <strong>{{ customer_status|title }}</strong> customer.</p>
+{% endif %}
+
 <div class="row">
     {% for product in products %}
     <div class="col-md-4 mb-3">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
-                <p class="card-text">${{ product.recommended_price }}</p>
-                <a href="{{ url_for('cart_add', product_id=product.product_id) }}" class="btn btn-primary">Add to Cart</a>
+                <p class="card-text">
+                    {% if product.final_price != product.recommended_price %}
+                        <span class="text-success fw-bold">${{ product.final_price }}</span>
+                        <del class="text-muted small">${{ product.recommended_price }}</del>
+                        <span class="badge bg-warning text-dark">Special Offer</span>
+                    {% else %}
+                        ${{ product.final_price }}
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('cart_add', product_id=product['product_id']) }}" class="btn btn-primary">Add to Cart</a>
             </div>
         </div>
     </div>

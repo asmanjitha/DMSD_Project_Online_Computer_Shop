@@ -19,7 +19,7 @@ def admin_logout():
 @app.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():
     if request.method == 'POST':
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -27,7 +27,7 @@ def admin_register():
             cursor.execute("""
                 INSERT INTO Admin (username, password)
                 VALUES (%s, %s)
-            """, (username, password))
+            """, (email, password))
             conn.commit()
             flash('Admin registered successfully!', 'success')
             return redirect(url_for('admin_login'))
@@ -42,16 +42,16 @@ def admin_register():
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Admin WHERE username = %s AND password = %s", (username, password))
+        cursor.execute("SELECT * FROM Admin WHERE username = %s AND password = %s", (email, password))
         admin = cursor.fetchone()
         cursor.close()
         conn.close()
         if admin:
-            session['admin_user'] = username
+            session['admin_user'] = email
             flash('Admin login successful!', 'success')
             return redirect(url_for('admin_home'))
         else:
@@ -130,14 +130,38 @@ def admin_product_edit(product_id):
 
 @app.route('/admin/products/delete/<int:product_id>')
 def admin_product_delete(product_id):
+    if 'admin_user' not in session:
+        flash('Please log in as admin to continue.', 'danger')
+        return redirect(url_for('admin_login'))
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Product WHERE product_id = %s", (product_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    flash('Product deleted successfully!', 'success')
+
+    try:
+        # Check if the product is referenced in any transaction
+        cursor.execute("""
+            SELECT COUNT(*) FROM TransactionDetails WHERE product_id = %s
+        """, (product_id,))
+        count = cursor.fetchone()[0]
+
+        if count > 0:
+            flash("❌ Cannot delete this product because it has been sold in transactions.", "danger")
+        else:
+            # Safe to delete
+            cursor.execute("DELETE FROM Product WHERE product_id = %s", (product_id,))
+            conn.commit()
+            flash("✅ Product deleted successfully.", "success")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"⚠️ Error deleting product: {str(e)}", "danger")
+
+    finally:
+        cursor.close()
+        conn.close()
+
     return redirect(url_for('admin_products'))
+
 
 
 @app.route('/admin/producttypes/add', methods=['GET', 'POST'])
@@ -167,6 +191,47 @@ def admin_producttype_add():
     return render_template('admin_producttype_add.html')
 
 
+# ================== CUSTOMER MANAGEMENT ===================
+
+@app.route('/admin/customers', methods=['GET', 'POST'])
+def admin_customers():
+    if 'admin_user' not in session:
+        flash('Please log in as admin to continue.', 'danger')
+        return redirect(url_for('admin_login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        customer_id = request.form.get('customer_id')
+        new_status = request.form.get('new_status')
+        print("➡️ Received POST: customer_id =", customer_id, "| new_status =", new_status)
+
+        try:
+            cursor.execute("""
+                UPDATE Customer SET status = %s WHERE customer_id = %s
+            """, (new_status, customer_id))
+
+            print("⬅️ Rows affected:", cursor.rowcount)
+
+            conn.commit()
+            flash('✅ Customer status updated successfully.', 'success')
+        except Exception as e:
+            conn.rollback()
+            flash(f"⚠️ Failed to update status: {str(e)}", 'danger')
+
+    cursor.execute("SELECT * FROM Customer")
+    customers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('admin_customers.html', customers=customers)
+
+
+
+
+
 # ================== PROMOTION MANAGEMENT ==================
 
 @app.route('/admin/promotions')
@@ -174,14 +239,18 @@ def admin_promotions():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-        SELECT SpecialOffer.offer_id, Product.name AS product_name, SpecialOffer.offer_price
-        FROM SpecialOffer
-        JOIN Product ON SpecialOffer.product_id = Product.product_id
-    """)
+    SELECT SpecialOffer.offer_id,
+           Product.name AS product_name,
+           SpecialOffer.offer_price,
+           SpecialOffer.allowed_status
+    FROM SpecialOffer
+    JOIN Product ON SpecialOffer.product_id = Product.product_id
+""")
     promotions = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template('admin_promotions.html', promotions=promotions)
+
 
 @app.route('/admin/promotions/add', methods=['GET', 'POST'])
 def admin_promotion_add():
@@ -193,19 +262,20 @@ def admin_promotion_add():
     if request.method == 'POST':
         product_id = request.form['product_id']
         offer_price = request.form['offer_price']
+        allowed_status = request.form['allowed_status'] or None
+
         cursor.execute("""
-            INSERT INTO SpecialOffer (product_id, offer_price)
-            VALUES (%s, %s)
-        """, (product_id, offer_price))
+            INSERT INTO SpecialOffer (product_id, offer_price, allowed_status)
+            VALUES (%s, %s, %s)
+        """, (product_id, offer_price, allowed_status))
         conn.commit()
-        cursor.close()
-        conn.close()
         flash('Promotion added successfully!', 'success')
         return redirect(url_for('admin_promotions'))
 
     cursor.close()
     conn.close()
     return render_template('admin_promotion_add.html', products=products)
+
 
 @app.route('/admin/promotions/edit/<int:offer_id>', methods=['GET', 'POST'])
 def admin_promotion_edit(offer_id):
@@ -214,28 +284,30 @@ def admin_promotion_edit(offer_id):
 
     if request.method == 'POST':
         offer_price = request.form['offer_price']
+        allowed_status = request.form['allowed_status'] or None
+
         cursor.execute("""
             UPDATE SpecialOffer
-            SET offer_price=%s
-            WHERE offer_id=%s
-        """, (offer_price, offer_id))
+            SET offer_price = %s, allowed_status = %s
+            WHERE offer_id = %s
+        """, (offer_price, allowed_status, offer_id))
         conn.commit()
-        cursor.close()
-        conn.close()
         flash('Promotion updated successfully!', 'success')
         return redirect(url_for('admin_promotions'))
 
     else:
         cursor.execute("""
-            SELECT SpecialOffer.offer_id, Product.name AS product_name, SpecialOffer.offer_price
-            FROM SpecialOffer
-            JOIN Product ON SpecialOffer.product_id = Product.product_id
-            WHERE SpecialOffer.offer_id = %s
+            SELECT s.offer_id, s.offer_price, s.allowed_status,
+                   p.name AS product_name
+            FROM SpecialOffer s
+            JOIN Product p ON s.product_id = p.product_id
+            WHERE s.offer_id = %s
         """, (offer_id,))
         promotion = cursor.fetchone()
         cursor.close()
         conn.close()
         return render_template('admin_promotion_edit.html', promotion=promotion)
+
 
 @app.route('/admin/promotions/delete/<int:offer_id>')
 def admin_promotion_delete(offer_id):

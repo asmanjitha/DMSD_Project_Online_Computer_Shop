@@ -73,3 +73,11 @@ input[type="submit"]:hover {
 .navbar a:hover {
     text-decoration: underline;
 }
+
+.index-background {
+    background-image: url("../images/bg.jpg");
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    padding: 5rem 1rem;
+}

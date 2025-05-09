@@ -83,11 +83,46 @@ def get_customer_id(email):
 def shop():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Product WHERE quantity_in_stock > 0")
+
+    user_email = session.get('user_email')
+    customer_status = 'regular'  # default for guests
+
+    if user_email:
+        cursor.execute("SELECT status FROM Customer WHERE email = %s", (user_email,))
+        result = cursor.fetchone()
+        if result:
+            customer_status = result['status']
+
+    if customer_status in ['gold', 'platinum']:
+        # Gold & Platinum users get special offer prices if available
+        cursor.execute("""
+            SELECT 
+                p.product_id, p.name,
+                COALESCE(so.offer_price, p.recommended_price) AS final_price,
+                p.recommended_price,
+                p.quantity_in_stock
+            FROM Product p
+            LEFT JOIN SpecialOffer so ON p.product_id = so.product_id
+            WHERE p.quantity_in_stock > 0
+        """)
+    else:
+        # Regular & Silver see only the recommended price
+        cursor.execute("""
+            SELECT 
+                product_id, name,
+                recommended_price AS final_price,
+                recommended_price,
+                quantity_in_stock
+            FROM Product
+            WHERE quantity_in_stock > 0
+        """)
+
     products = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('shop.html', products=products)
+
+    return render_template('shop.html', products=products, customer_status=customer_status)
+
 
 @app.route('/cart/add/<int:product_id>')
 def cart_add(product_id):
@@ -134,12 +169,12 @@ def cart():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT ci.cart_item_id, p.name, ci.quantity, p.recommended_price
-        FROM ShoppingBasket sb
-        JOIN ShoppingCartItem ci ON sb.basket_id = ci.basket_id
-        JOIN Product p ON ci.product_id = p.product_id
-        WHERE sb.customer_id = %s
-    """, (customer_id,))
+    SELECT ci.cart_item_id, p.name, p.product_id, ci.quantity, p.recommended_price
+    FROM ShoppingBasket sb
+    JOIN ShoppingCartItem ci ON sb.basket_id = ci.basket_id
+    JOIN Product p ON ci.product_id = p.product_id
+    WHERE sb.customer_id = %s
+""", (customer_id,))
     cart_items = cursor.fetchall()
 
     cursor.close()
@@ -157,17 +192,21 @@ def cart_remove(product_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # Corrected to target ShoppingCartItem
     cursor.execute("""
-        DELETE td FROM ShoppingBasket sb
-        JOIN TransactionDetails td ON sb.basket_id = td.transaction_id
-        WHERE sb.customer_id = %s AND td.product_id = %s
+        DELETE sci
+        FROM ShoppingCartItem sci
+        JOIN ShoppingBasket sb ON sci.basket_id = sb.basket_id
+        WHERE sb.customer_id = %s AND sci.product_id = %s
     """, (customer_id, product_id))
+
     conn.commit()
     cursor.close()
     conn.close()
 
     flash('Product removed from cart.', 'success')
     return redirect(url_for('cart'))
+
 
 # ================== CHECKOUT ==================
 
@@ -410,6 +449,7 @@ def profile():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # Handle update
     if request.method == 'POST':
         phone = request.form['phone']
         address = request.form['home_address']
@@ -421,12 +461,21 @@ def profile():
         conn.commit()
         flash('Profile updated.', 'success')
 
+    # Fetch profile, addresses, and cards
     cursor.execute("SELECT * FROM Customer WHERE customer_id = %s", (customer_id,))
     customer = cursor.fetchone()
 
+    cursor.execute("SELECT * FROM ShippingAddress WHERE customer_id = %s", (customer_id,))
+    addresses = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM CreditCard WHERE customer_id = %s", (customer_id,))
+    cards = cursor.fetchall()
+
     cursor.close()
     conn.close()
-    return render_template('profile.html', customer=customer)
+
+    return render_template('profile.html', customer=customer, addresses=addresses, cards=cards)
+
 
 @app.route('/profile/creditcards/add', methods=['GET', 'POST'])
 def creditcard_add():
@@ -457,3 +506,114 @@ def creditcard_add():
         return redirect(url_for('profile'))
 
     return render_template('creditcard_add.html')
+
+@app.route('/profile/creditcards/delete/<card_number>')
+def creditcard_delete(card_number):
+    if 'user_email' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('user_login'))
+
+    customer_id = get_customer_id(session['user_email'])
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        DELETE FROM CreditCard
+        WHERE card_number = %s AND customer_id = %s
+    """, (card_number, customer_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash('Credit card deleted successfully.', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/profile/shippingaddresses/edit/<address_name>', methods=['GET', 'POST'])
+def shippingaddress_edit(address_name):
+    if 'user_email' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('user_login'))
+
+    customer_id = get_customer_id(session['user_email'])
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        zip_code = request.form['zip_code']
+        street_name = request.form['street_name']
+        street_number = request.form['street_number']
+        city = request.form['city']
+        state = request.form['state']
+        country = request.form['country']
+
+        cursor.execute("""
+            UPDATE ShippingAddress
+            SET zip_code = %s, street_name = %s, street_number = %s,
+                city = %s, state = %s, country = %s
+            WHERE customer_id = %s AND address_name = %s
+        """, (zip_code, street_name, street_number, city, state, country, customer_id, address_name))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('Shipping address updated.', 'success')
+        return redirect(url_for('profile'))
+
+    # GET method — fetch the address to edit
+    cursor.execute("""
+        SELECT * FROM ShippingAddress
+        WHERE customer_id = %s AND address_name = %s
+    """, (customer_id, address_name))
+    address = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not address:
+        flash('Shipping address not found.', 'danger')
+        return redirect(url_for('profile'))
+
+    return render_template('shippingaddress_edit.html', address=address)
+
+
+
+@app.route('/profile/creditcards/edit/<card_number>', methods=['GET', 'POST'])
+def creditcard_edit(card_number):
+    if 'user_email' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('user_login'))
+
+    customer_id = get_customer_id(session['user_email'])
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        owner_name = request.form['owner_name']
+        billing_address = request.form['billing_address']
+        card_type = request.form['card_type']
+        expiry_date = request.form['expiry_date']
+
+        cursor.execute("""
+            UPDATE CreditCard
+            SET owner_name = %s, billing_address = %s, card_type = %s, expiry_date = %s
+            WHERE card_number = %s AND customer_id = %s
+        """, (owner_name, billing_address, card_type, expiry_date, card_number, customer_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('Credit card updated.', 'success')
+        return redirect(url_for('profile'))
+
+    cursor.execute("""
+        SELECT * FROM CreditCard
+        WHERE card_number = %s AND customer_id = %s
+    """, (card_number, customer_id))
+    card = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not card:
+        flash('Credit card not found.', 'danger')
+        return redirect(url_for('profile'))
+
+    return render_template('creditcard_edit.html', card=card)

@@ -8,7 +8,6 @@
 <h2 class="mb-4">My Profile</h2>
 
 <form method="POST" class="row g-3">
-
     <div class="col-md-6">
         <label for="phone" class="form-label">Phone</label>
         <input type="text" class="form-control" name="phone" id="phone" value="{{ customer.phone }}" required>
@@ -22,14 +21,82 @@
     <div class="col-12">
         <button type="submit" class="btn btn-primary">Update Profile</button>
     </div>
-
 </form>
 
 <hr class="my-4">
 
+
+<h4 class="mt-4">Credit Cards</h4>
+<a href="{{ url_for('creditcard_add') }}" class="btn btn-success btn-sm mb-2">Add Credit Card</a>
+
+{% if cards %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Card Number</th>
+            <th>Owner</th>
+            <th>Type</th>
+            <th>Expiry</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for card in cards %}
+        <tr>
+            <td>{{ card.card_number }}</td>
+            <td>{{ card.owner_name }}</td>
+            <td>{{ card.card_type }}</td>
+            <td>{{ card.expiry_date }}</td>
+            <td>
+                <a href="{{ url_for('creditcard_edit', card_number=card.card_number) }}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{ url_for('creditcard_delete', card_number=card.card_number) }}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No credit cards added yet.</p>
+{% endif %}
+
+
+<h4 class="mt-5">Shipping Addresses</h4>
+<a href="{{ url_for('shippingaddress_add') }}" class="btn btn-success btn-sm mb-2">Add Shipping Address</a>
+
+{% if addresses %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Address Name</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Country</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for addr in addresses %}
+        <tr>
+            <td>{{ addr.address_name }}</td>
+            <td>{{ addr.street_number }} {{ addr.street_name }}</td>
+            <td>{{ addr.city }}</td>
+            <td>{{ addr.state }}</td>
+            <td>{{ addr.country }}</td>
+            <td>
+                <a href="{{ url_for('shippingaddress_edit', address_name=addr.address_name) }}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{ url_for('shippingaddress_delete', address_name=addr.address_name) }}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No shipping addresses saved yet.</p>
+{% endif %}
+
+<hr class="my-4">
 <div class="d-flex flex-wrap gap-3">
-    <a href="{{ url_for('creditcard_add') }}" class="btn btn-success">Add Credit Card</a>
-    <a href="{{ url_for('shippingaddress_list') }}" class="btn btn-info">Manage Shipping Addresses</a>
     <a href="{{ url_for('order_list') }}" class="btn btn-secondary">View My Orders</a>
 </div>
 
